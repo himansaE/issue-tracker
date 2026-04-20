@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { AuthUser } from '../types/auth';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { AuthUser } from "../types/auth";
 
 interface AuthState {
   user: AuthUser | null;
@@ -20,17 +20,19 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
 
-      login: (user, token) =>
-        set({ user, token, isAuthenticated: true }),
+      login: (user, token) => set({ user, token, isAuthenticated: true }),
 
-      logout: () =>
-        set({ user: null, token: null, isAuthenticated: false }),
+      logout: () => set({ user: null, token: null, isAuthenticated: false }),
 
       setLoading: (loading) => set({ isLoading: loading }),
     }),
     {
-      name: 'issue-tracker-auth', // localStorage key
-      partialize: (state) => ({ user: state.user, token: state.token }),
-    }
-  )
+      name: "issue-tracker-auth",
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+      }),
+    },
+  ),
 );
