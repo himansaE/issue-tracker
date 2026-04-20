@@ -1,0 +1,4 @@
+allowScriptsInAnyPackage: true
+
+onlyBuiltDependencies:
+  - bcrypt
