@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { Clipboard } from 'iconsax-react';
 
 export default function DashboardPage() {
   const { user, logout } = useAuthStore();
@@ -17,9 +18,7 @@ export default function DashboardPage() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
+              <Clipboard variant="Bulk" color="currentColor" className="w-4 h-4 text-white" />
             </div>
             <span className="font-semibold text-sm tracking-tight">Issue Tracker</span>
           </div>
@@ -65,9 +64,7 @@ export default function DashboardPage() {
         {/* Empty state */}
         <div className="bg-surface-800 border border-white/5 rounded-xl p-12 flex flex-col items-center justify-center text-center">
           <div className="w-16 h-16 rounded-2xl bg-surface-700 flex items-center justify-center mb-4">
-            <svg className="w-8 h-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
-            </svg>
+            <Clipboard variant="Bulk" color="currentColor" className="w-8 h-8 text-slate-500" />
           </div>
           <h2 className="text-lg font-semibold text-slate-200 mb-1">No issues yet</h2>
           <p className="text-sm text-slate-500 max-w-xs">
