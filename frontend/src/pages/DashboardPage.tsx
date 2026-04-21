@@ -24,10 +24,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-slate-400">
-              {user?.name}{' '}
-              <span className="text-xs px-1.5 py-0.5 rounded bg-brand-900 text-brand-400 ml-1">
-                {user?.role}
-              </span>
+              {user?.name}
             </span>
             <button
               type="button"

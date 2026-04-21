@@ -1,8 +1,12 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+import rateLimit from 'express-rate-limit';
 import { env } from './config/env';
 import { connectDB } from './config/db';
 import authRoutes from './modules/auth/auth.routes';
+import issueRoutes from './modules/issue/issue.routes';
 
 const app = express();
 
@@ -13,6 +17,17 @@ app.use(
     credentials: true,
   })
 );
+app.use(helmet());
+app.use(mongoSanitize());
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again after 15 minutes',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/', apiLimiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -22,6 +37,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/issues', issueRoutes);
 
 // ─── Global error handler ────────────────────────────────────────────────────
 app.use(

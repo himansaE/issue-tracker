@@ -5,7 +5,6 @@ import { env } from "../config/env";
 export interface JwtPayload {
   id: string;
   email: string;
-  role: "user" | "admin";
   iat: number;
   exp: number;
 }
@@ -48,17 +47,4 @@ export const protect = (
   }
 };
 
-export const requireRole =
-  (...roles: Array<"user" | "admin">) =>
-  (req: Request, res: Response, next: NextFunction): void => {
-    if (!req.user || !roles.includes(req.user.role)) {
-      res
-        .status(403)
-        .json({
-          success: false,
-          message: "Forbidden – insufficient permissions",
-        });
-      return;
-    }
-    next();
-  };
+

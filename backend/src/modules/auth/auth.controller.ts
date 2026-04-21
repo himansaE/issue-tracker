@@ -26,7 +26,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   const user = await User.create({ name, email, passwordHash });
 
   const token = jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
+    { id: user.id, email: user.email },
     env.JWT_SECRET,
     { expiresIn: env.JWT_EXPIRES_IN } as any,
   );
@@ -39,7 +39,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role,
       },
     },
   });
@@ -69,7 +68,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 
   const token = jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
+    { id: user.id, email: user.email },
     env.JWT_SECRET,
     { expiresIn: env.JWT_EXPIRES_IN } as any,
   );
@@ -82,7 +81,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role,
       },
     },
   });
@@ -97,6 +95,6 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
   }
   res.status(200).json({
     success: true,
-    data: { id: user.id, name: user.name, email: user.email, role: user.role },
+    data: { id: user.id, name: user.name, email: user.email },
   });
 };
