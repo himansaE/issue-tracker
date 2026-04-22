@@ -64,7 +64,6 @@ const issueSchema = new Schema<IIssue>(
   },
 );
 
-issueSchema.index({ shortId: 1 });
 issueSchema.index({ status: 1, order: 1 });
 issueSchema.index({ priority: 1 });
 issueSchema.index({ author: 1 });
