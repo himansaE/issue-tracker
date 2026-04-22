@@ -40,7 +40,7 @@ export default function IssueCard({ issue, onClick, isDragging = false, isOverla
       onClick={() => onClick(issue)}
       className={`bg-[#1A1D24] rounded-[20px] p-4 flex flex-col gap-3 group cursor-pointer border transition-all duration-200 ease-out ${isOverlay
         ? 'border-brand-500/50 shadow-2xl shadow-brand-500/20 rotate-[1.5deg] scale-105 opacity-95'
-        : 'border-[#2A2E37] hover:border-brand-500/30 hover:shadow-lg hover:-translate-y-0.5'
+        : 'border-[#2A2E37] hover:border-brand-500/30 hover:shadow-lg'
         }`}
     >
       <div className="flex justify-between items-center">
