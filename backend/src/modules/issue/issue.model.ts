@@ -1,7 +1,9 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { IssueStatus, IssuePriority, IssueSeverity } from "./issue.enums";
+import { Counter } from "./counter.model";
 
 export interface IIssue extends Document {
+  shortId: string;
   title: string;
   description?: string;
   status: IssueStatus;
@@ -14,6 +16,11 @@ export interface IIssue extends Document {
 
 const issueSchema = new Schema<IIssue>(
   {
+    shortId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
     title: {
       type: String,
       required: [true, "Title is required"],
@@ -49,12 +56,25 @@ const issueSchema = new Schema<IIssue>(
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
+  },
 );
 
-// Indexes for faster querying, especially when filtering by status on the Kanban board
+issueSchema.index({ shortId: 1 });
 issueSchema.index({ status: 1 });
 issueSchema.index({ priority: 1 });
 issueSchema.index({ author: 1 });
+
+issueSchema.pre("save", async function () {
+  if (this.isNew) {
+    const counter = await Counter.findByIdAndUpdate(
+      { _id: "issueId" },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true },
+    );
+    if (counter) {
+      this.shortId = `IS-${counter.seq.toString().padStart(4, "0")}`;
+    }
+  }
+});
 
 export const Issue = mongoose.model<IIssue>("Issue", issueSchema);

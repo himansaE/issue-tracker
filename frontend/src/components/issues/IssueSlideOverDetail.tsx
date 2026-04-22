@@ -107,7 +107,7 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
       <SlideOver
         isOpen={isOpen}
         onClose={onClose}
-        title={isEditing ? 'Edit Issue' : 'New Task'}
+        title={isEditing ? `Edit Issue ${issue?.shortId ? `(${issue.shortId})` : ''}` : 'New Task'}
       >
         <form onSubmit={handleSubmit} className="flex flex-col h-full grow">
           <div className="flex-1 space-y-6 pt-2">

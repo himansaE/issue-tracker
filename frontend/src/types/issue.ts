@@ -27,6 +27,7 @@ export type IssueSeverity = (typeof IssueSeverity)[keyof typeof IssueSeverity];
 
 export interface Issue {
   id: string;
+  shortId?: string;
   title: string;
   description?: string;
   status: IssueStatus;
