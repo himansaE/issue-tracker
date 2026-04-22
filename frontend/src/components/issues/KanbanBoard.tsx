@@ -94,9 +94,10 @@ export default function KanbanBoard({ onIssueClick, onCreateClick }: KanbanBoard
 
     const finalIssues = reordered.map((issue, idx) => ({ ...issue, order: idx }));
 
+    const originalById = new Map(issues.map(i => [i.id, i]));
     const changedItems = finalIssues
-      .filter((issue, idx) => {
-        const original = issues[idx];
+      .filter(issue => {
+        const original = originalById.get(issue.id);
         return !original || original.status !== issue.status || original.order !== issue.order;
       })
       .map(i => ({ id: i.id, status: i.status, order: i.order }));
