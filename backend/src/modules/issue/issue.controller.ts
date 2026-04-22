@@ -6,16 +6,15 @@ import mongoose from "mongoose";
 // GET /api/issues
 export const getIssues = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Optionally filter by query parameters (e.g., status, priority)
     const { status, priority } = req.query;
     const filter: any = {};
-    
+
     if (status) filter.status = status;
     if (priority) filter.priority = priority;
 
     const issues = await Issue.find(filter)
-      .populate("author", "name email") // include basic author info
-      .sort({ createdAt: -1 }); // newest first
+      .populate("author", "name email")
+      .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, count: issues.length, data: issues });
   } catch (error: any) {
@@ -24,15 +23,23 @@ export const getIssues = async (req: Request, res: Response): Promise<void> => {
 };
 
 // GET /api/issues/:id
-export const getIssueById = async (req: Request, res: Response): Promise<void> => {
+export const getIssueById = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id as string)) {
-      res.status(400).json({ success: false, message: "Invalid issue ID format" });
+      res
+        .status(400)
+        .json({ success: false, message: "Invalid issue ID format" });
       return;
     }
 
-    const issue = await Issue.findById(req.params.id).populate("author", "name email");
-    
+    const issue = await Issue.findById(req.params.id).populate(
+      "author",
+      "name email",
+    );
+
     if (!issue) {
       res.status(404).json({ success: false, message: "Issue not found" });
       return;
@@ -45,18 +52,25 @@ export const getIssueById = async (req: Request, res: Response): Promise<void> =
 };
 
 // POST /api/issues
-export const createIssue = async (req: Request, res: Response): Promise<void> => {
+export const createIssue = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const parsed = createIssueSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ success: false, errors: parsed.error.flatten().fieldErrors });
+      res
+        .status(400)
+        .json({ success: false, errors: parsed.error.flatten().fieldErrors });
       return;
     }
 
-    const issue = await Issue.create({
+    let issue = await Issue.create({
       ...parsed.data,
-      author: req.user!.id, 
+      author: req.user!.id,
     });
+    
+    issue = await issue.populate("author", "name email");
 
     res.status(201).json({ success: true, data: issue });
   } catch (error: any) {
@@ -65,16 +79,23 @@ export const createIssue = async (req: Request, res: Response): Promise<void> =>
 };
 
 // PUT /api/issues/:id
-export const updateIssue = async (req: Request, res: Response): Promise<void> => {
+export const updateIssue = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id as string)) {
-      res.status(400).json({ success: false, message: "Invalid issue ID format" });
+      res
+        .status(400)
+        .json({ success: false, message: "Invalid issue ID format" });
       return;
     }
 
     const parsed = updateIssueSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ success: false, errors: parsed.error.flatten().fieldErrors });
+      res
+        .status(400)
+        .json({ success: false, errors: parsed.error.flatten().fieldErrors });
       return;
     }
 
@@ -84,11 +105,18 @@ export const updateIssue = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    // Applying updates
+    if (issue.author.toString() !== req.user!.id) {
+      res.status(403).json({
+        success: false,
+        message: "Forbidden – You can only edit your own issues",
+      });
+      return;
+    }
+
     issue = await Issue.findByIdAndUpdate(
       req.params.id,
       { $set: parsed.data },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).populate("author", "name email");
 
     res.status(200).json({ success: true, data: issue });
@@ -98,16 +126,29 @@ export const updateIssue = async (req: Request, res: Response): Promise<void> =>
 };
 
 // DELETE /api/issues/:id
-export const deleteIssue = async (req: Request, res: Response): Promise<void> => {
+export const deleteIssue = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id as string)) {
-      res.status(400).json({ success: false, message: "Invalid issue ID format" });
+      res
+        .status(400)
+        .json({ success: false, message: "Invalid issue ID format" });
       return;
     }
 
     const issue = await Issue.findById(req.params.id);
     if (!issue) {
       res.status(404).json({ success: false, message: "Issue not found" });
+      return;
+    }
+
+    if (issue.author.toString() !== req.user!.id) {
+      res.status(403).json({
+        success: false,
+        message: "Forbidden – You can only delete your own issues",
+      });
       return;
     }
 

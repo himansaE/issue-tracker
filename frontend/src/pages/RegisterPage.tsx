@@ -157,7 +157,7 @@ export default function RegisterPage() {
           />
 
           <Button type="submit" loading={loading} className="mt-2">
-            Start building
+            Create account
           </Button>
         </form>
 

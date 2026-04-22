@@ -1,62 +1,69 @@
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import mongoSanitize from 'express-mongo-sanitize';
-import rateLimit from 'express-rate-limit';
-import { env } from './config/env';
-import { connectDB } from './config/db';
-import authRoutes from './modules/auth/auth.routes';
-import issueRoutes from './modules/issue/issue.routes';
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import { env } from "./config/env";
+import { connectDB } from "./config/db";
+import authRoutes from "./modules/auth/auth.routes";
+import issueRoutes from "./modules/issue/issue.routes";
 
 const app = express();
 
-// ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(
   cors({
-    origin: process.env.CLIENT_URL ?? 'http://localhost:5173',
+    origin: process.env.CLIENT_URL ?? "http://localhost:5173",
     credentials: true,
-  })
+  }),
 );
 app.use(helmet());
-app.use(mongoSanitize());
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again after 15 minutes',
+  message: "Too many requests from this IP, please try again after 15 minutes",
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use('/api/', apiLimiter);
+app.use("/api/", apiLimiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ─── Routes ───────────────────────────────────────────────────────────────────
-app.get('/api/health', (_req, res) => {
-  res.status(200).json({ success: true, message: 'Server is running 🚀', env: env.NODE_ENV });
+app.get("/api/health", (_req, res) => {
+  res
+    .status(200)
+    .json({
+      success: true,
+      message: "Server is running 🚀",
+      env: env.NODE_ENV,
+    });
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/issues', issueRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/issues", issueRoutes);
 
-// ─── Global error handler ────────────────────────────────────────────────────
 app.use(
   (
     err: Error,
     _req: express.Request,
     res: express.Response,
-    _next: express.NextFunction
+    _next: express.NextFunction,
   ) => {
     console.error(err.stack);
-    res.status(500).json({ success: false, message: err.message ?? 'Internal server error' });
-  }
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: err.message ?? "Internal server error",
+      });
+  },
 );
 
-// ─── Bootstrap ───────────────────────────────────────────────────────────────
 const start = async () => {
   await connectDB();
   app.listen(env.PORT, () => {
-    console.log(`🚀  Server listening on http://localhost:${env.PORT} [${env.NODE_ENV}]`);
+    console.log(
+      `Server listening on http://localhost:${env.PORT} [${env.NODE_ENV}]`,
+    );
   });
 };
 

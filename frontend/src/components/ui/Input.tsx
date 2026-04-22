@@ -18,7 +18,7 @@ export function Input({ label, error, rightElement, id, ...props }: InputProps) 
       <input
         id={id}
         {...props}
-        className={`w-full px-4 py-3 rounded-xl bg-surface-800 border focus:bg-surface-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-[border-color,background-color,box-shadow] duration-[200ms] ease-ui-out shadow-sm ${
+        className={`w-full px-4 py-3 rounded-xl bg-surface-800 border focus:bg-surface-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-input shadow-sm ${
           error ? 'border-red-500/60' : 'border-white/10'
         } ${props.className || ''}`}
       />
