@@ -58,6 +58,7 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
         setSeverity('MEDIUM');
       }
       setError('');
+      setPendingStatusChange(null);
     }
   }, [isOpen, issue, initialStatus]);
 
@@ -130,9 +131,6 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
       >
         <form onSubmit={handleSubmit} className="flex flex-col h-full grow">
           <div className="flex-1 space-y-6 pt-2">
-
-
-
             {isCreatorLock && (
               <div className="p-3 bg-brand-500/10 border border-brand-500/20 text-brand-300 text-sm rounded-lg">
                 View-only mode. You can only edit or delete issues that you created.
@@ -332,7 +330,7 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
         description={
           pendingStatusChange === 'RESOLVED'
             ? 'This marks the issue as resolved. You can reopen it at any time.'
-            : 'This will permanently close the issue.'
+            : 'This will close the issue. You can reopen it at any time.'
         }
       >
         <div className="flex justify-end gap-3">
@@ -340,13 +338,15 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
             type="button"
             onClick={() => setPendingStatusChange(null)}
             className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors outline-none"
+            disabled={isSubmitting}
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={() => {
-              setStatus(pendingStatusChange!);
+              if (!pendingStatusChange) return;
+              setStatus(pendingStatusChange);
               setPendingStatusChange(null);
             }}
             className="px-4 py-2 text-sm font-medium bg-brand-600 text-white rounded-lg hover:bg-brand-500 transition-colors outline-none active:scale-[0.97]"
