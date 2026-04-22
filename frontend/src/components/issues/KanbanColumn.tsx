@@ -1,8 +1,11 @@
+import { useState, useEffect } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import type { Issue, IssueStatus } from '../../types/issue';
 import { Add, More } from 'iconsax-react';
 import SortableIssueCard from './SortableIssueCard';
+
+const PAGE_SIZE = 10;
 
 interface KanbanColumnProps {
   id: IssueStatus;
@@ -24,6 +27,15 @@ export default function KanbanColumn({
   onIssueClick,
 }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
+
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [issues.length]);
+
+  const visibleIssues = issues.slice(0, visibleCount);
+  const hiddenCount = issues.length - visibleCount;
 
   return (
     <div className="flex-none w-[280px] sm:w-[320px] snap-start flex flex-col">
@@ -62,7 +74,7 @@ export default function KanbanColumn({
             isOver ? 'bg-brand-500/5 ring-1 ring-brand-500/20' : ''
           }`}
         >
-          {issues.map((issue, idx) => (
+          {visibleIssues.map((issue, idx) => (
             <div
               key={issue.id}
               className="animate-enter"
@@ -71,6 +83,16 @@ export default function KanbanColumn({
               <SortableIssueCard issue={issue} onClick={onIssueClick} />
             </div>
           ))}
+
+          {hiddenCount > 0 && (
+            <button
+              type="button"
+              onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+              className="w-full mt-2 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 bg-white/[0.03] hover:bg-white/[0.06] rounded-lg transition-colors"
+            >
+              Show {Math.min(hiddenCount, PAGE_SIZE)} more
+            </button>
+          )}
 
           {issues.length === 0 && (
             <div className={`h-24 border border-dashed rounded-xl flex items-center justify-center transition-colors duration-150 ${
