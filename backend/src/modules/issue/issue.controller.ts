@@ -13,10 +13,11 @@ export const getIssues = async (req: Request, res: Response): Promise<void> => {
 
     if (status) filter.status = status;
     if (priority) filter.priority = priority;
-    if (searchStr) filter.$or = [
-      { title: { $regex: searchStr, $options: 'i' } },
-      { shortId: { $regex: searchStr, $options: 'i' } },
-    ];
+    if (searchStr) {
+      const escaped = searchStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escaped, 'i');
+      filter.$or = [{ title: regex }, { shortId: regex }];
+    }
 
     const issues = await Issue.find(filter)
       .populate("author", "name email avatarUrl")
