@@ -7,12 +7,13 @@ import mongoose from "mongoose";
 // GET /api/issues
 export const getIssues = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { status, priority, search } = req.query;
+    const { status, priority } = req.query;
+    const searchStr = typeof req.query.search === 'string' ? req.query.search : undefined;
     const filter: any = {};
 
     if (status) filter.status = status;
     if (priority) filter.priority = priority;
-    if (search) filter.title = { $regex: search as string, $options: 'i' };
+    if (searchStr) filter.title = { $regex: searchStr, $options: 'i' };
 
     const issues = await Issue.find(filter)
       .populate("author", "name email avatarUrl")
