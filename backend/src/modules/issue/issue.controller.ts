@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Issue } from "./issue.model";
 import { createIssueSchema, updateIssueSchema } from "./issue.schema";
+import { IssueStatus } from "./issue.enums";
 import mongoose from "mongoose";
 
 // GET /api/issues
@@ -167,7 +168,7 @@ export const reorderIssues = async (
 ): Promise<void> => {
   try {
     const { items } = req.body as {
-      items: Array<{ id: string; status: string; order: number }>;
+      items: Array<{ id: string; status: IssueStatus; order: number }>;
     };
 
     if (!Array.isArray(items) || items.length === 0) {
