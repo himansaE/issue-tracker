@@ -107,9 +107,9 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout splash={splash}>
-      <AuthHero 
-        title="Create an account" 
-        description="Join Issue Tracker and start building today." 
+      <AuthHero
+        title="Create an account"
+        description="Join Issue Tracker and start building today."
       />
 
       <div className="animate-enter" style={{ animationDelay: '50ms' }}>
@@ -163,7 +163,7 @@ export default function RegisterPage() {
 
         <p className="mt-8 text-center text-sm text-slate-400">
           Already have an account?{' '}
-          <Link to="/login" className="inline-block text-white hover:text-brand-300 font-semibold transition-[transform,color] duration-[160ms] ease-ui-out active:scale-[0.97]">
+          <Link to="/login" className="inline-block text-white hover:text-brand-300 font-semibold transition-[transform,color] duration-160 ease-ui-out active:scale-[0.97]">
             Sign in
           </Link>
         </p>

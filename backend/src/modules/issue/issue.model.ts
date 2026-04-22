@@ -10,6 +10,7 @@ export interface IIssue extends Document {
   priority: IssuePriority;
   severity: IssueSeverity;
   author: mongoose.Types.ObjectId;
+  order: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,6 +47,10 @@ const issueSchema = new Schema<IIssue>(
       enum: Object.values(IssueSeverity),
       default: IssueSeverity.MEDIUM,
     },
+    order: {
+      type: Number,
+      default: 0,
+    },
     author: {
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -60,7 +65,7 @@ const issueSchema = new Schema<IIssue>(
 );
 
 issueSchema.index({ shortId: 1 });
-issueSchema.index({ status: 1 });
+issueSchema.index({ status: 1, order: 1 });
 issueSchema.index({ priority: 1 });
 issueSchema.index({ author: 1 });
 

@@ -77,9 +77,9 @@ export default function LoginPage() {
 
   return (
     <AuthLayout splash={splash}>
-      <AuthHero 
-        title="Welcome back" 
-        description="Please enter your details to sign in." 
+      <AuthHero
+        title="Welcome back"
+        description="Please enter your details to sign in."
       />
 
       <div className="animate-enter" style={{ animationDelay: '50ms' }}>
@@ -126,7 +126,7 @@ export default function LoginPage() {
 
         <p className="mt-8 text-center text-sm text-slate-400">
           Don't have an account?{' '}
-          <Link to="/register" className="inline-block text-white hover:text-brand-300 font-semibold transition-[transform,color] duration-[160ms] ease-ui-out active:scale-[0.97]">
+          <Link to="/register" className="inline-block text-white hover:text-brand-300 font-semibold transition-[transform,color] duration-160 ease-ui-out active:scale-[0.97]">
             Create an account
           </Link>
         </p>

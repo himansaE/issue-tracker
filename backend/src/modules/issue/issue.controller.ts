@@ -14,7 +14,7 @@ export const getIssues = async (req: Request, res: Response): Promise<void> => {
 
     const issues = await Issue.find(filter)
       .populate("author", "name email avatarUrl")
-      .sort({ createdAt: -1 });
+      .sort({ order: 1, createdAt: -1 });
 
     res.status(200).json({ success: true, count: issues.length, data: issues });
   } catch (error: any) {
@@ -155,6 +155,36 @@ export const deleteIssue = async (
     await issue.deleteOne();
 
     res.status(200).json({ success: true, data: {} });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// PUT /api/issues/reorder
+export const reorderIssues = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { items } = req.body as {
+      items: Array<{ id: string; status: string; order: number }>;
+    };
+
+    if (!Array.isArray(items) || items.length === 0) {
+      res.status(400).json({ success: false, message: "items array is required" });
+      return;
+    }
+
+    const bulkOps = items.map(({ id, status, order }) => ({
+      updateOne: {
+        filter: { _id: id },
+        update: { $set: { status, order } },
+      },
+    }));
+
+    await Issue.bulkWrite(bulkOps);
+
+    res.status(200).json({ success: true });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -4,9 +4,11 @@ import { More, ArrowDown, ArrowRight, ArrowUp, Warning2 } from 'iconsax-react';
 interface IssueCardProps {
   issue: Issue;
   onClick: (issue: Issue) => void;
+  isDragging?: boolean;
+  isOverlay?: boolean;
 }
 
-export default function IssueCard({ issue, onClick }: IssueCardProps) {
+export default function IssueCard({ issue, onClick, isDragging = false, isOverlay = false }: IssueCardProps) {
   const displayId = issue.shortId || `IS-${issue.id.substring(issue.id.length - 4).toUpperCase()}`;
 
   const statusColors = {
@@ -15,7 +17,7 @@ export default function IssueCard({ issue, onClick }: IssueCardProps) {
     RESOLVED: "text-emerald-500",
     CLOSED: "text-slate-500",
   };
-  
+
   const priorityBgColors = {
     LOW: "bg-slate-500/10 text-slate-400",
     MEDIUM: "bg-blue-500/10 text-blue-400",
@@ -23,14 +25,23 @@ export default function IssueCard({ issue, onClick }: IssueCardProps) {
     URGENT: "bg-red-500/10 text-red-500",
   };
 
-  const PriorityIcon = issue.priority === 'LOW' ? ArrowDown : 
-                       issue.priority === 'MEDIUM' ? ArrowRight : 
-                       issue.priority === 'HIGH' ? ArrowUp : Warning2;
+  const PriorityIcon = issue.priority === 'LOW' ? ArrowDown :
+    issue.priority === 'MEDIUM' ? ArrowRight :
+      issue.priority === 'HIGH' ? ArrowUp : Warning2;
+
+  if (isDragging) {
+    return (
+      <div className="rounded-[20px] border-2 border-dashed border-white/10 bg-white/2 h-[116px]" />
+    );
+  }
 
   return (
     <div
       onClick={() => onClick(issue)}
-      className="bg-[#1A1D24] rounded-[20px] p-4 flex flex-col gap-3 group cursor-pointer border border-[#2A2E37] hover:border-brand-500/30 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-out"
+      className={`bg-[#1A1D24] rounded-[20px] p-4 flex flex-col gap-3 group cursor-pointer border transition-all duration-200 ease-out ${isOverlay
+        ? 'border-brand-500/50 shadow-2xl shadow-brand-500/20 rotate-[1.5deg] scale-105 opacity-95'
+        : 'border-[#2A2E37] hover:border-brand-500/30 hover:shadow-lg hover:-translate-y-0.5'
+        }`}
     >
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2.5">
@@ -40,7 +51,7 @@ export default function IssueCard({ issue, onClick }: IssueCardProps) {
           </div>
           <span className="text-[11px] font-bold text-slate-400 tracking-widest font-mono uppercase">{displayId}</span>
         </div>
-        
+
         <button className="text-slate-600 hover:text-white transition-colors" title="More Options">
           <More size="16" variant="Outline" color="currentColor" />
         </button>
@@ -58,7 +69,7 @@ export default function IssueCard({ issue, onClick }: IssueCardProps) {
             </div>
           )}
         </div>
-        
+
         <div className={`px-2 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 ${priorityBgColors[issue.priority]}`}>
           <PriorityIcon size="12" variant="Bulk" color="currentColor" />
           {issue.priority}

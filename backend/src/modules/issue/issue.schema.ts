@@ -11,6 +11,7 @@ export const createIssueSchema = z.object({
   status: issueStatusEnum.default(IssueStatus.OPEN),
   priority: issuePriorityEnum.default(IssuePriority.MEDIUM),
   severity: issueSeverityEnum.default(IssueSeverity.MEDIUM),
+  order: z.number().optional(),
 });
 
 export const updateIssueSchema = z.object({
@@ -19,6 +20,7 @@ export const updateIssueSchema = z.object({
   status: issueStatusEnum.optional(),
   priority: issuePriorityEnum.optional(),
   severity: issueSeverityEnum.optional(),
+  order: z.number().optional(),
 });
 
 export type CreateIssueInput = z.infer<typeof createIssueSchema>;

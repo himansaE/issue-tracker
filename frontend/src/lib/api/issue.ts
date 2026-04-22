@@ -34,6 +34,12 @@ export const issueApi = {
     return response.data;
   },
 
+  // Reorder issues (bulk update status + order)
+  reorderIssues: async (items: Array<{ id: string; status: string; order: number }>) => {
+    const response = await api.put<{ success: boolean }>('/api/issues/reorder', { items });
+    return response.data;
+  },
+
   // Delete issue
   deleteIssue: async (id: string) => {
     const response = await api.delete<{ success: boolean; data: {} }>(

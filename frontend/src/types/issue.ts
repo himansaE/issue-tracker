@@ -33,6 +33,7 @@ export interface Issue {
   status: IssueStatus;
   priority: IssuePriority;
   severity: IssueSeverity;
+  order: number;
   author: {
     _id?: string;
     id: string;
