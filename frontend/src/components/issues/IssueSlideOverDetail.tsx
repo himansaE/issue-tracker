@@ -39,6 +39,7 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [error, setError] = useState('');
+  const [pendingStatusChange, setPendingStatusChange] = useState<IssueStatus | null>(null);
 
   // Sync state when issue or initialStatus changes
   useEffect(() => {
@@ -170,7 +171,14 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
                 <label className="block text-sm font-medium text-slate-300">Status</label>
                 <Select
                   value={status}
-                  onValueChange={(val) => setStatus(val as IssueStatus)}
+                  onValueChange={(val) => {
+                    const next = val as IssueStatus;
+                    if (next === 'RESOLVED' || next === 'CLOSED') {
+                      setPendingStatusChange(next);
+                    } else {
+                      setStatus(next);
+                    }
+                  }}
                   disabled={isCreatorLock || isSubmitting}
                 >
                   <SelectTrigger className="w-full bg-surface-800 border border-white/10 text-white focus:bg-surface-700 focus:ring-2 focus:ring-brand-500 rounded-lg py-[11px] px-3.5 shadow-sm">
@@ -313,6 +321,37 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
             className="px-4 py-2 text-sm font-medium bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors outline-none active:scale-[0.97]"
           >
             {isSubmitting ? 'Deleting...' : 'Delete'}
+          </button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={!!pendingStatusChange}
+        onClose={() => setPendingStatusChange(null)}
+        title={`Mark as ${pendingStatusChange === 'RESOLVED' ? 'Resolved' : 'Closed'}?`}
+        description={
+          pendingStatusChange === 'RESOLVED'
+            ? 'This marks the issue as resolved. You can reopen it at any time.'
+            : 'This will permanently close the issue.'
+        }
+      >
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={() => setPendingStatusChange(null)}
+            className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors outline-none"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setStatus(pendingStatusChange!);
+              setPendingStatusChange(null);
+            }}
+            className="px-4 py-2 text-sm font-medium bg-brand-600 text-white rounded-lg hover:bg-brand-500 transition-colors outline-none active:scale-[0.97]"
+          >
+            Confirm
           </button>
         </div>
       </Modal>
