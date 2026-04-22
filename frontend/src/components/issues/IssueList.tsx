@@ -76,7 +76,7 @@ export default function IssueList() {
 
   return (
     <div className="relative">
-      <div className="flex gap-4 md:gap-6 overflow-x-auto pb-8 scrollbar-hide min-h-[60vh] snap-x snap-mandatory pt-2 mt-[-8px]">
+      <div className="flex gap-4 md:gap-6 overflow-x-auto pb-6 scrollbar-kanban min-h-[60vh] snap-x snap-mandatory pt-2 mt-[-8px]">
         {COLUMNS.map(column => {
           const columnIssues = issues.filter(i => i.status === column.id);
 
@@ -84,7 +84,7 @@ export default function IssueList() {
             <div key={column.id} className="flex-none w-[280px] sm:w-[320px] snap-start flex flex-col">
               <div className="flex items-center justify-between mb-3 px-1 sticky top-0 bg-surface-900/80 backdrop-blur-sm z-10 py-2">
                 <div className="flex items-center gap-2">
-                  <column.icon size="16" variant="Bulk" className={column.color} />
+                  <column.icon size="16" variant="Bulk" color="currentColor" className={column.color} />
                   <h3 className="text-[13px] font-semibold text-slate-200">{column.label}</h3>
                   <span className="text-[11px] bg-white/5 text-slate-400 px-1.5 py-0.5 rounded-md font-medium">{columnIssues.length}</span>
                 </div>
@@ -94,7 +94,7 @@ export default function IssueList() {
                     <Add size="14" color="currentColor" />
                   </button>
                   <button className="w-6 h-6 rounded flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/5 transition-colors">
-                    <More size="14" color="currentColor" />
+                    <More size="14" color="currentColor" variant="Outline" />
                   </button>
                 </div>
               </div>

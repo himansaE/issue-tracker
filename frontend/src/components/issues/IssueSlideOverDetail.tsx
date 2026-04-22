@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import SlideOver from '../ui/SlideOver';
 import { Input } from '../ui/Input';
+import { Textarea } from '../ui/Textarea';
 import { Button } from '../ui/Button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import Modal from '../ui/Modal';
@@ -8,7 +9,7 @@ import { useIssueStore } from '../../store/issueStore';
 import { useAuthStore } from '../../store/authStore';
 import { IssueStatus, IssuePriority, IssueSeverity } from '../../types/issue';
 import type { Issue, CreateIssueInput, UpdateIssueInput } from '../../types/issue';
-import { Trash } from 'iconsax-react';
+import { Trash, Record, ArrowDown, ArrowRight, ArrowUp, Warning2, Shield, ShieldTick, ShieldCross, Danger } from 'iconsax-react';
 
 interface IssueSlideOverDetailProps {
   isOpen: boolean;
@@ -61,7 +62,15 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!title.trim()) {
+      setError("Issue title is required");
+      return;
+    }
+
+    if (!description.trim()) {
+      setError("Issue description is required");
+      return;
+    }
 
     if (isCreatorLock) {
       setError("You are not the creator of this issue so you cannot edit it.");
@@ -81,7 +90,15 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
       }
       onClose();
     } catch (err: any) {
-      setError(err?.message || 'Something went wrong');
+      const data = err?.response?.data;
+      if (data?.errors) {
+        console.log(data.errors);
+        // Handle Zod field errors { errors: { title: ["..."], ... } }
+        const fieldErrors = Object.values(data.errors).flat().join(', ');
+        setError(fieldErrors || 'Validation failed.');
+      } else {
+        setError(data?.message || err?.message || 'Something went wrong while saving the issue.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -95,7 +112,8 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
       setDeleteModalOpen(false);
       onClose();
     } catch (err: any) {
-      setError(err?.message || 'Failed to delete issue');
+      const data = err?.response?.data;
+      setError(data?.message || err?.message || 'Failed to delete issue.');
       setDeleteModalOpen(false);
     } finally {
       setIsSubmitting(false);
@@ -112,11 +130,7 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
         <form onSubmit={handleSubmit} className="flex flex-col h-full grow">
           <div className="flex-1 space-y-6 pt-2">
 
-            {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-lg">
-                {error}
-              </div>
-            )}
+
 
             {isCreatorLock && (
               <div className="p-3 bg-brand-500/10 border border-brand-500/20 text-brand-300 text-sm rounded-lg">
@@ -128,25 +142,28 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
               label="Title"
               id="title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              error={error && error.toLowerCase().includes('title') ? error : ''}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (error) setError('');
+              }}
               placeholder="E.g. Fix navigation bar contrast"
               disabled={isCreatorLock || isSubmitting}
             />
 
-            <div className="space-y-1">
-              <label htmlFor="description" className="block text-sm font-medium text-slate-300">
-                Description
-              </label>
-              <textarea
-                id="description"
-                rows={4}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                disabled={isCreatorLock || isSubmitting}
-                className="block w-full bg-surface-950 border border-white/10 rounded-lg py-2.5 px-3.5 text-sm outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500 placeholder:text-slate-500 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
-                placeholder="Give some details..."
-              />
-            </div>
+            <Textarea
+              label="Description"
+              id="description"
+              rows={4}
+              value={description}
+              error={error && error.toLowerCase().includes('description') ? error : ''}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                if (error) setError('');
+              }}
+              disabled={isCreatorLock || isSubmitting}
+              placeholder="Give some details..."
+            />
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
@@ -156,15 +173,22 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
                   onValueChange={(val) => setStatus(val as IssueStatus)}
                   disabled={isCreatorLock || isSubmitting}
                 >
-                  <SelectTrigger className="w-full bg-surface-950 border-white/10 text-white focus:ring-1 focus:ring-brand-500 rounded-lg">
+                  <SelectTrigger className="w-full bg-surface-800 border border-white/10 text-white focus:bg-surface-700 focus:ring-2 focus:ring-brand-500 rounded-lg py-[11px] px-3.5 shadow-sm">
                     <SelectValue placeholder="Select Status" />
                   </SelectTrigger>
-                  <SelectContent className="bg-surface-900 border-white/5 text-slate-200">
-                    {Object.values(IssueStatus).map(s => (
-                      <SelectItem key={s} value={s} className="hover:bg-surface-800 focus:bg-surface-800">
-                        {s.replace('_', ' ')}
-                      </SelectItem>
-                    ))}
+                  <SelectContent className="bg-surface-800 border-white/10 text-slate-200 rounded-lg shadow-xl">
+                    {Object.values(IssueStatus).map(s => {
+                      const color = s === 'OPEN' ? 'text-amber-500' : s === 'IN_PROGRESS' ? 'text-brand-400' : s === 'RESOLVED' ? 'text-emerald-500' : 'text-slate-500';
+                      const label = s === 'OPEN' ? 'Open' : s === 'IN_PROGRESS' ? 'In Progress' : s === 'RESOLVED' ? 'Resolved' : 'Closed';
+                      return (
+                        <SelectItem key={s} value={s} className="cursor-pointer rounded-md mx-1 my-1">
+                          <div className="flex items-center gap-2">
+                            <Record size="14" variant="Bulk" color="currentColor" className={color} />
+                            <span className="text-[13px] font-medium text-slate-200">{label}</span>
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
@@ -176,15 +200,22 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
                   onValueChange={(val) => setPriority(val as IssuePriority)}
                   disabled={isCreatorLock || isSubmitting}
                 >
-                  <SelectTrigger className="w-full bg-surface-950 border-white/10 text-white focus:ring-1 focus:ring-brand-500 rounded-lg">
+                  <SelectTrigger className="w-full bg-surface-800 border border-white/10 text-white focus:bg-surface-700 focus:ring-2 focus:ring-brand-500 rounded-lg py-[11px] px-3.5 shadow-sm">
                     <SelectValue placeholder="Select Priority" />
                   </SelectTrigger>
-                  <SelectContent className="bg-surface-900 border-white/5 text-slate-200">
-                    {Object.values(IssuePriority).map(p => (
-                      <SelectItem key={p} value={p} className="hover:bg-surface-800 focus:bg-surface-800">
-                        {p}
-                      </SelectItem>
-                    ))}
+                  <SelectContent className="bg-surface-800 border-white/10 text-slate-200 rounded-lg shadow-xl">
+                    {Object.values(IssuePriority).map(p => {
+                      const color = p === 'LOW' ? 'text-blue-400' : p === 'MEDIUM' ? 'text-amber-500' : p === 'HIGH' ? 'text-orange-500' : 'text-red-500';
+                      const Icon = p === 'LOW' ? ArrowDown : p === 'MEDIUM' ? ArrowRight : p === 'HIGH' ? ArrowUp : Warning2;
+                      return (
+                        <SelectItem key={p} value={p} className="cursor-pointer rounded-md mx-1 my-1">
+                          <div className="flex items-center gap-2">
+                            <Icon size="14" variant="Bulk" color="currentColor" className={color} />
+                            <span className="text-[13px] font-medium text-slate-200">{p.charAt(0) + p.slice(1).toLowerCase()}</span>
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
@@ -197,15 +228,22 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
                 onValueChange={(val) => setSeverity(val as IssueSeverity)}
                 disabled={isCreatorLock || isSubmitting}
               >
-                <SelectTrigger className="w-full bg-surface-950 border-white/10 text-white focus:ring-1 focus:ring-brand-500 rounded-lg">
+                <SelectTrigger className="w-full bg-surface-800 border border-white/10 text-white focus:bg-surface-700 focus:ring-2 focus:ring-brand-500 rounded-lg py-[11px] px-3.5 shadow-sm">
                   <SelectValue placeholder="Select Severity" />
                 </SelectTrigger>
-                <SelectContent className="bg-surface-900 border-white/5 text-slate-200">
-                  {Object.values(IssueSeverity).map(s => (
-                    <SelectItem key={s} value={s} className="hover:bg-surface-800 focus:bg-surface-800">
-                      {s}
-                    </SelectItem>
-                  ))}
+                <SelectContent className="bg-surface-800 border-white/10 text-slate-200 rounded-lg shadow-xl">
+                  {Object.values(IssueSeverity).map(s => {
+                    const color = s === 'LOW' ? 'text-slate-400' : s === 'MEDIUM' ? 'text-blue-400' : s === 'HIGH' ? 'text-amber-500' : 'text-red-500';
+                    const Icon = s === 'LOW' ? Shield : s === 'MEDIUM' ? ShieldTick : s === 'HIGH' ? ShieldCross : Danger;
+                    return (
+                      <SelectItem key={s} value={s} className="cursor-pointer rounded-md mx-1 my-1">
+                        <div className="flex items-center gap-2">
+                          <Icon size="14" variant="Outline" color="currentColor" className={color} />
+                          <span className="text-[13px] font-medium text-slate-200">{s.charAt(0) + s.slice(1).toLowerCase()}</span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -231,7 +269,7 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
             {!isCreatorLock && (
               <Button
                 type="submit"
-                disabled={isSubmitting || !title.trim()}
+                disabled={isSubmitting}
                 loading={isSubmitting}
               >
                 {isEditing ? 'Save Changes' : 'Create Issue'}
@@ -246,7 +284,7 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
                 className="px-4 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors flex items-center justify-center outline-none active:scale-[0.97]"
                 title="Delete Issue"
               >
-                <Trash size="18" />
+                <Trash size="18" variant="Outline" color="currentColor" />
               </button>
             )}
           </div>
