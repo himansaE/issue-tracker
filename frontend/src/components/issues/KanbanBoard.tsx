@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -33,6 +33,7 @@ interface KanbanBoardProps {
 export default function KanbanBoard({ onIssueClick, onCreateClick }: KanbanBoardProps) {
   const { issues, reorderIssues } = useIssueStore();
   const [activeIssue, setActiveIssue] = useState<Issue | null>(null);
+  const preDragIssues = useRef<Issue[]>([]);
 
   // 5px activation distance to stop accidental drags on click
   const sensors = useSensors(
@@ -42,6 +43,7 @@ export default function KanbanBoard({ onIssueClick, onCreateClick }: KanbanBoard
   );
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
+    preDragIssues.current = issues;
     const draggedIssue = issues.find(i => i.id === event.active.id);
     setActiveIssue(draggedIssue ?? null);
   }, [issues]);
@@ -94,7 +96,7 @@ export default function KanbanBoard({ onIssueClick, onCreateClick }: KanbanBoard
 
     const finalIssues = reordered.map((issue, idx) => ({ ...issue, order: idx }));
 
-    const originalById = new Map(issues.map(i => [i.id, i]));
+    const originalById = new Map(preDragIssues.current.map(i => [i.id, i]));
     const changedItems = finalIssues
       .filter(issue => {
         const original = originalById.get(issue.id);
