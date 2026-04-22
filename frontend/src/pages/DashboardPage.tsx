@@ -31,8 +31,12 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="hidden sm:flex items-center gap-2 bg-surface-800 rounded-full pl-1 pr-3 py-1 border border-white/5 max-w-[160px] md:max-w-[240px]">
-              <div className="w-6 h-6 shrink-0 rounded-full bg-brand-600 flex items-center justify-center text-[10px] font-bold text-white tracking-widest shadow-inner">
-                {user?.name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'U'}
+              <div className="w-6 h-6 shrink-0 rounded-full bg-brand-600 flex items-center justify-center text-[10px] font-bold text-white tracking-widest shadow-inner overflow-hidden">
+                {user?.avatarUrl ? (
+                  <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                  user?.name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'U'
+                )}
               </div>
               <span className="text-sm font-medium text-slate-300 truncate">
                 {user?.name}

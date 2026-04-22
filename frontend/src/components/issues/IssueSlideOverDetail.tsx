@@ -20,13 +20,13 @@ interface IssueSlideOverDetailProps {
 export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialStatus }: IssueSlideOverDetailProps) {
   const { createIssue, updateIssue, deleteIssue } = useIssueStore();
   const { user } = useAuthStore();
-  
+
   const isEditing = !!issue;
-  
-  const issueAuthorId = issue?.author 
+
+  const issueAuthorId = issue?.author
     ? (typeof issue.author === 'string' ? issue.author : (issue.author._id || issue.author.id))
     : null;
-    
+
   const isCreatorLock = isEditing && issueAuthorId !== user?.id;
 
   const [title, setTitle] = useState('');
@@ -34,7 +34,7 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
   const [status, setStatus] = useState<IssueStatus>('OPEN');
   const [priority, setPriority] = useState<IssuePriority>('MEDIUM');
   const [severity, setSeverity] = useState<IssueSeverity>('MEDIUM');
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [error, setError] = useState('');
@@ -104,20 +104,20 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
 
   return (
     <>
-      <SlideOver 
-        isOpen={isOpen} 
-        onClose={onClose} 
+      <SlideOver
+        isOpen={isOpen}
+        onClose={onClose}
         title={isEditing ? 'Edit Issue' : 'New Task'}
       >
         <form onSubmit={handleSubmit} className="flex flex-col h-full grow">
           <div className="flex-1 space-y-6 pt-2">
-            
+
             {error && (
               <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-lg">
                 {error}
               </div>
             )}
-            
+
             {isCreatorLock && (
               <div className="p-3 bg-brand-500/10 border border-brand-500/20 text-brand-300 text-sm rounded-lg">
                 View-only mode. You can only edit or delete issues that you created.
@@ -209,25 +209,35 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
                 </SelectContent>
               </Select>
             </div>
-            
+
             {isEditing && issue?.author && typeof issue.author === 'object' && (
-                <div className="pt-4 border-t border-white/5 space-y-2">
-                  <p className="text-xs text-slate-500">Created by: {issue.author.name}</p>
+              <div className="pt-4 border-t border-white/5 flex items-center gap-3">
+                <div className="w-8 h-8 shrink-0 rounded-full bg-brand-600 flex items-center justify-center text-[10px] font-bold text-white tracking-widest shadow-inner overflow-hidden border border-white/10">
+                  {issue.author.avatarUrl ? (
+                    <img src={issue.author.avatarUrl} alt={issue.author.name} className="w-full h-full object-cover" />
+                  ) : (
+                    issue.author.name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'U'
+                  )}
                 </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Created by</span>
+                  <span className="text-sm text-slate-300 font-medium">{issue.author.name}</span>
+                </div>
+              </div>
             )}
           </div>
 
           <div className="mt-8 pt-6 border-t border-white/5 flex gap-3 pb-8">
             {!isCreatorLock && (
-              <Button 
-                type="submit" 
-                disabled={isSubmitting || !title.trim()} 
+              <Button
+                type="submit"
+                disabled={isSubmitting || !title.trim()}
                 loading={isSubmitting}
               >
                 {isEditing ? 'Save Changes' : 'Create Issue'}
               </Button>
             )}
-            
+
             {isEditing && !isCreatorLock && (
               <button
                 type="button"
@@ -243,7 +253,6 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
         </form>
       </SlideOver>
 
-      {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}

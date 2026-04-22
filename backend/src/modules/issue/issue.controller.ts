@@ -13,7 +13,7 @@ export const getIssues = async (req: Request, res: Response): Promise<void> => {
     if (priority) filter.priority = priority;
 
     const issues = await Issue.find(filter)
-      .populate("author", "name email")
+      .populate("author", "name email avatarUrl")
       .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, count: issues.length, data: issues });
@@ -37,7 +37,7 @@ export const getIssueById = async (
 
     const issue = await Issue.findById(req.params.id).populate(
       "author",
-      "name email",
+      "name email avatarUrl",
     );
 
     if (!issue) {
@@ -70,7 +70,7 @@ export const createIssue = async (
       author: req.user!.id,
     });
     
-    issue = await issue.populate("author", "name email");
+    issue = await issue.populate("author", "name email avatarUrl");
 
     res.status(201).json({ success: true, data: issue });
   } catch (error: any) {
@@ -117,7 +117,7 @@ export const updateIssue = async (
       req.params.id,
       { $set: parsed.data },
       { new: true, runValidators: true },
-    ).populate("author", "name email");
+    ).populate("author", "name email avatarUrl");
 
     res.status(200).json({ success: true, data: issue });
   } catch (error: any) {

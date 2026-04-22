@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { User } from "./auth.model";
 import { registerSchema, loginSchema } from "./auth.schema";
 import { env } from "../../config/env";
+import { generateAvatarUrl } from "../../lib/dicebear";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   const parsed = registerSchema.safeParse(req.body);
@@ -23,7 +24,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
-  const user = await User.create({ name, email, passwordHash });
+  const avatarUrl = generateAvatarUrl(email); // Use email as stable seed
+  const user = await User.create({ name, email, passwordHash, avatarUrl });
 
   const token = jwt.sign(
     { id: user.id, email: user.email },
@@ -39,6 +41,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         id: user.id,
         name: user.name,
         email: user.email,
+        avatarUrl: user.avatarUrl,
       },
     },
   });
@@ -81,6 +84,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         id: user.id,
         name: user.name,
         email: user.email,
+        avatarUrl: user.avatarUrl,
       },
     },
   });
@@ -95,6 +99,6 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
   }
   res.status(200).json({
     success: true,
-    data: { id: user.id, name: user.name, email: user.email },
+    data: { id: user.id, name: user.name, email: user.email, avatarUrl: user.avatarUrl },
   });
 };
