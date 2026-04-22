@@ -8,7 +8,7 @@ import type {
 
 export const issueApi = {
   // Get all issues with optional filters
-  getIssues: async (params?: { status?: string; priority?: string }) => {
+  getIssues: async (params?: { status?: string; priority?: string; search?: string }) => {
     const response = await api.get<IssuesResponse>("/api/issues", { params });
     return response.data;
   },

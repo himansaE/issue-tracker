@@ -8,7 +8,7 @@ interface IssueState {
   error: string | null;
 
   // actions
-  fetchIssues: (filters?: { status?: string; priority?: string }) => Promise<void>;
+  fetchIssues: (filters?: { status?: string; priority?: string; search?: string }) => Promise<void>;
   createIssue: (data: CreateIssueInput) => Promise<Issue>;
   updateIssue: (id: string, data: UpdateIssueInput) => Promise<Issue>;
   deleteIssue: (id: string) => Promise<void>;
