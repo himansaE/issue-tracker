@@ -40,7 +40,7 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [error, setError] = useState('');
   const [pendingStatusChange, setPendingStatusChange] = useState<IssueStatus | null>(null);
-
+  const [openSelect, setOpenSelect] = useState<'status' | 'priority' | 'severity' | null>(null);
   // Sync state when issue or initialStatus changes
   useEffect(() => {
     if (isOpen) {
@@ -59,6 +59,7 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
       }
       setError('');
       setPendingStatusChange(null);
+      setOpenSelect(null);
     }
   }, [isOpen, issue, initialStatus]);
 
@@ -95,7 +96,6 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
       const data = err?.response?.data;
       if (data?.errors) {
         console.log(data.errors);
-        // Handle Zod field errors { errors: { title: ["..."], ... } }
         const fieldErrors = Object.values(data.errors).flat().join(', ');
         setError(fieldErrors || 'Validation failed.');
       } else {
@@ -168,6 +168,8 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-slate-300">Status</label>
                 <Select
+                  open={openSelect === 'status'}
+                  onOpenChange={(open) => setOpenSelect(open ? 'status' : null)}
                   value={status}
                   onValueChange={(val) => {
                     const next = val as IssueStatus;
@@ -202,6 +204,8 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-slate-300">Priority</label>
                 <Select
+                  open={openSelect === 'priority'}
+                  onOpenChange={(open) => setOpenSelect(open ? 'priority' : null)}
                   value={priority}
                   onValueChange={(val) => setPriority(val as IssuePriority)}
                   disabled={isCreatorLock || isSubmitting}
@@ -230,6 +234,8 @@ export default function IssueSlideOverDetail({ isOpen, onClose, issue, initialSt
             <div className="space-y-1">
               <label className="block text-sm font-medium text-slate-300">Severity</label>
               <Select
+                open={openSelect === 'severity'}
+                onOpenChange={(open) => setOpenSelect(open ? 'severity' : null)}
                 value={severity}
                 onValueChange={(val) => setSeverity(val as IssueSeverity)}
                 disabled={isCreatorLock || isSubmitting}
