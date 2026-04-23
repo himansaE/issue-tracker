@@ -2,7 +2,7 @@
 
 A full-stack issue tracking app built with React, Express, and MongoDB. Organizes issues on a Kanban board with drag-and-drop across four columns (Open, In Progress, Resolved, Closed). Each user sees only their own issues.
 
-**Live demo:** [issue-tracker-himansa.vercel.app](https://issue-tracker-himansa.vercel.app)
+**Live demo:** [issue-tracker-seven-sigma.vercel.app](https://issue-tracker-seven-sigma.vercel.app/)
 
 ---
 
